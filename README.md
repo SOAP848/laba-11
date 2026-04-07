@@ -22,6 +22,17 @@ mid/
 │   ├── .dockerignore        # Игнорируемые файлы для Docker
 │   └── docker-compose.yml   # Docker Compose с ограничениями ресурсов
 └── docker-compose.yml       # Общий Docker Compose для обоих приложений
+hard/
+└── go_project/              # Папка с Go-приложением и Docker-конфигурацией (задание повышенной сложности)
+    ├── main.go              # Исходный код Go-приложения
+    ├── main_test.go         # Unit-тесты
+    ├── go.mod               # Модуль Go
+    ├── go.sum               # Зависимости
+    ├── Dockerfile           # Многостадийный Dockerfile (builder + scratch)
+    ├── .dockerignore        # Игнорируемые файлы для Docker
+    ├── Makefile             # Управление сборкой
+    ├── build.sh             # Скрипт сборки для Linux/macOS
+    └── build.bat            # Скрипт сборки для Windows
 ```
 
 ## Требования
@@ -30,6 +41,7 @@ mid/
 - Для локальной разработки:
   - Python 3.11 (для Python-приложения)
   - Rust и Cargo (для Rust-приложения)
+  - Go 1.23+ (для Go-приложения, опционально)
 
 --- 
 Задание 1 и 3(средняя) Написать Dockerfile для Python-приложения, Написать Dockerfile для Rust-приложения
@@ -300,6 +312,102 @@ b6aeb863590d   python_app_container   0.02%     25.84MiB / 256MiB   10.09%    1.
 - **Healthcheck**: добавлены проверки здоровья для мониторинга состояния приложений.
 - **Сети**: создана изолированная сеть `app_network` для каждого приложения.
 - **Перезапуск**: политика `restart: unless-stopped` обеспечивает автоматический перезапуск при сбоях.
+
+## Задание 1 (повышенная). Собрать Go-приложение с поддержкой статической компиляции и запустить в scratch-образе
+
+В папке `hard/go_project` реализовано Go-приложение с поддержкой статической компиляции и запуском в scratch-образе.
+
+### Структура проекта
+
+```
+hard/go_project/
+├── main.go                 # Исходный код Go-приложения
+├── main_test.go            # Unit-тесты
+├── go.mod                  # Модуль Go
+├── go.sum                  # Зависимости
+├── Dockerfile              # Многостадийный Dockerfile (builder + scratch)
+├── .dockerignore           # Игнорируемые файлы для Docker
+├── Makefile                # Управление сборкой (build, test, clean)
+├── build.sh                # Скрипт сборки для Linux/macOS
+└── build.bat               # Скрипт сборки для Windows
+```
+
+### Функциональность приложения
+
+- **HTTP-сервер** на порту 8000 (настраивается через переменную окружения `PORT`)
+- **Эндпоинты**:
+  - `GET /` – приветствие с параметром `name` (по умолчанию "World")
+  - `GET /health` – статус здоровья приложения (JSON)
+  - `GET /version` – версия и тип сборки (JSON)
+- **Статическая компиляция** – бинарник не зависит от системных библиотек
+
+### Сборка статического бинарника
+
+#### Linux/macOS
+```bash
+cd hard/go_project
+./build.sh
+```
+или
+```bash
+make build-static
+```
+
+#### Windows
+```cmd
+cd hard\go_project
+build.bat
+```
+или
+```powershell
+cd hard/go_project
+make build-static
+```
+
+### Docker-образ на основе scratch
+
+Dockerfile использует двухстадийную сборку:
+1. **Builder stage** – компиляция статического бинарника с `CGO_ENABLED=0`
+2. **Scratch stage** – копирование бинарника и CA-сертификатов в пустой образ
+
+#### Сборка образа
+```bash
+cd hard/go_project
+docker build -t go-app:latest .
+```
+
+#### Запуск контейнера
+```bash
+docker run -d -p 8000:8000 --name go-app-test go-app:latest
+```
+
+### Тестирование
+
+#### Запуск unit-тестов
+```bash
+cd hard/go_project
+go test -v
+```
+
+#### Проверка работы контейнера
+- **Linux/macOS**:
+  ```bash
+  curl http://localhost:8000/
+  curl http://localhost:8000/health
+  curl http://localhost:8000/version
+  ```
+- **Windows (PowerShell)**:
+  ```powershell
+  Invoke-WebRequest -Uri "http://localhost:8000/" -UseBasicParsing
+  Invoke-WebRequest -Uri "http://localhost:8000/health" -UseBasicParsing
+  Invoke-WebRequest -Uri "http://localhost:8000/version" -UseBasicParsing
+  ```
+
+### Результат
+- Статический бинарник `go-app` (≈5 МБ)
+- Docker-образ `go-app:latest` на основе scratch (≈5.5 МБ)
+- Полное покрытие тестами
+- Работает на любом Linux-хосте без зависимостей
 
 ## Тестирование
 
