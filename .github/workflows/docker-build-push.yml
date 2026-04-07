@@ -13,9 +13,20 @@ env:
   # GitHub repository owner and name
   IMAGE_NAMESPACE: ${{ github.repository_owner }}
 
+# Required permissions for pushing to GitHub Container Registry
+permissions:
+  contents: read
+  packages: write
+
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
+    # Set permissions for this job
+    permissions:
+      contents: read
+      packages: write
+      id-token: write  # Required for OIDC authentication
+    
     strategy:
       matrix:
         project:
