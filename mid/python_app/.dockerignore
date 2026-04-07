@@ -1,0 +1,41 @@
+# Игнорируем файлы Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+.env
+.venv
+
+# Игнорируем файлы IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Игнорируем логи и временные файлы
+*.log
+*.tmp
+*.temp
+
+# Игнорируем системные файлы
+.DS_Store
+Thumbs.db
+
+# Игнорируем тестовые данные и сборки
+test_data/
+build/
+dist/
+*.egg-info/
+
+# Игнорируем конфигурационные файлы (кроме нужных)
+*.yml
+*.yaml
+*.json
+!requirements.txt
+
+# Игнорируем документацию
+docs/
+README.md
