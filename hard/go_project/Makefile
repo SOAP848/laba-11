@@ -27,4 +27,4 @@ docker-build:
 	docker build -t $(BINARY_NAME):$(VERSION) -f Dockerfile .
 
 docker-run:
-	docker run --rm -p 8080:8080 $(BINARY_NAME):$(VERSION)
+	docker run --rm -p 8000:8000 $(BINARY_NAME):$(VERSION)
