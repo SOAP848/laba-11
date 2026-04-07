@@ -1,0 +1,12 @@
+# Игнорируем ненужные файлы для Docker
+target/
+**/*.rs.bk
+.git/
+.gitignore
+*.log
+*.tmp
+.dockerignore
+README.md
+tests/
+.vscode/
+.idea/
