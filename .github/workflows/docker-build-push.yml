@@ -95,18 +95,21 @@ jobs:
         if: matrix.project.name == 'go-app'
         run: |
           cd hard/go_project
+          go mod download
           go test -v ./...
 
       - name: Run tests for Python application
         if: matrix.project.name == 'python-app'
         run: |
           cd mid/python_app
+          pip install -r requirements.txt
           python -m unittest test_app.py -v
 
       - name: Run tests for Rust application
         if: matrix.project.name == 'rust-app'
         run: |
           cd mid/Rust_app
+          cargo fetch
           cargo test --release --verbose
 
   deploy-notification:
