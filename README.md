@@ -10,6 +10,11 @@
 ## Структура проекта
 
 ```
+
+
+.github/
+└──workflows/
+    └──docker-build-push.yml
 mid/
 ├── python_app/               # Папка с Python-приложением и Docker-конфигурацией
 │   ├── app.py               # Основное Flask-приложение
